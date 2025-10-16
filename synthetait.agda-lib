@@ -1,0 +1,8 @@
+name: synthetait
+depend: standard-library cubical
+include: src
+flags:
+  --cubical
+  -WnoUnsupportedIndexedMatch
+  --rewriting
+  --prop
