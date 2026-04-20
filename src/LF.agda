@@ -178,3 +178,32 @@ postulate
   ○ : (Aᵇ : Tyᵇ) → Tyᶠ Aᵇ
   η○ : ∀ aᵇ → Tmᶠ (○ Aᵇ) aᵇ
   η○-contr : η○ aᵇ ≡ bᶠ
+
+
+
+
+-- Iso up to a notion of iso
+record _≃'_by_and_ (A : Set) (B : Set) (_≃A_ : A → A → Set) (_≃B_ : B → B → Set) : Set where
+  field
+    to : A → B
+    from : B → A
+    to-from : ∀ x → to (from x) ≃B x
+    from-to : ∀ x → from (to x) ≃A x
+
+open _≃'_by_and_
+
+-- Glue and extension types exhibit the fact that the fibers are purely semantic
+-- data indexed over purely base data.
+fracture : Tyᶠ Aᵇ ≃' (Tmᵇ Aᵇ → Tyᶠ 𝟙ᵇ)
+            by (λ A B → ∀ aᵇ → Tmᶠ A aᵇ ≃ Tmᶠ B aᵇ)
+            and λ F G → ∀ aᵇ → Tmᶠ (F aᵇ) ttᵇ ≃ Tmᶠ (G aᵇ) ttᵇ
+fracture .to = Ext
+fracture .from = Glue _
+fracture .to-from f aᵇ .to x = unglue (unext x)
+fracture .to-from f aᵇ .from x = ext (glue x)
+fracture .to-from f aᵇ .to-from x = refl
+fracture .to-from f aᵇ .from-to x = refl
+fracture .from-to g aᵇ .to x = unext (unglue x)
+fracture .from-to g aᵇ .from x = glue (ext x)
+fracture .from-to g aᵇ .to-from x = refl
+fracture .from-to g aᵇ .from-to x = refl
