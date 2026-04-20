@@ -11,9 +11,9 @@ There are two known approaches to formalising STC:
   hell, even with `--prop`. Rewriting rules don't help because we cannot rewrite
   a term based on the existence of an element `p : #` in the ambient context,
   which is not otherwise referenced in the term.
-- Postulating a cofibration `#` in cubical mode. Then at least glue and
-  extension types can be formulated using cubical primitives. However it is
-  pretty hacky and Agda's cofibrations do not really behave properly (they
+- Postulating a cofibration `#` in cubical mode (e.g. https://github.com/jonsterling/agda-stc).
+  Then at least glue and extension types can be formulated using cubical primitives.
+  However it is pretty hacky and Agda's cofibrations do not really behave properly (they
   emulate the internal language of a de Morgan topos, and none of the usual STC
   examples fall under this AFAIK).
   
