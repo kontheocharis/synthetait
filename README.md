@@ -13,9 +13,10 @@ There are two known approaches to formalising STC:
   which is not otherwise referenced in the term.
 - Postulating a cofibration `#` in cubical mode (e.g. https://github.com/jonsterling/agda-stc).
   Then at least glue and extension types can be formulated using cubical primitives.
-  However it is pretty hacky and Agda's cofibrations do not really behave properly (they
+  However it is pretty hacky and Agda's cofibrations do not really behave properly (as far
+  as I can tell they
   emulate the internal language of a de Morgan topos, and none of the usual STC
-  examples fall under this AFAIK).
+  examples fall under this (?)).
   
 Ideally we would want an implementation of type theory with propositions (like
 in [Andreas Nuyts' PhD thesis](https://lirias.kuleuven.be/retrieve/581985), also
