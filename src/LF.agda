@@ -5,7 +5,7 @@ open import Data.Product
 
 -- We work internally to an indexed type theory.
 -- Its models are displayed models of type theory (equivalently morphisms of
--- models of type theory) that support certain presheaf type formers.
+-- models of type theory) that support certain gluing type formers.
 -- The intended interpretation is a glued category; STLC.agda for an example.
 --
 -- We ignore size issues for now..
