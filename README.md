@@ -51,7 +51,7 @@ and a base point and produces a closed-modal type.
 
 We can also add the closed modality (`● : Tyᶠ Aᵇ → Tyᶠ 𝟙ᵇ`) and open immersion
 (`○ : (Aᵇ : Tyᵇ) → Tyᶠ Aᵇ`) with appropriate intro/elim rules. The open modality
-is just projection of the index `Aᵇ`. See `LF.agda`.
+is just projection of the index `Aᵇ` followed by open immersion. See `LF.agda`.
 
 This is all we need to define STC models. See `STLC.agda` for an example of
 canonicity for the simply-typed lambda calculus.
