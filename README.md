@@ -7,7 +7,7 @@ about how things collapse under `#`.
 
 There are two known approaches to formalising STC:
 
-- Postulating a proposition `#` directly. This basically leads to rewriting
+- Postulating a proposition `#` directly, and postulate the realignment axiom. This basically leads to transport
   hell, even with `--prop`. Rewriting rules don't help because we cannot rewrite
   a term based on the existence of an element `p : #` in the ambient context,
   which is not otherwise referenced in the term.
