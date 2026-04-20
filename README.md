@@ -36,6 +36,9 @@ In other words, you can think of
 - `Aᵇ : Tyᵇ` as `Aᵇ : ○ U`
 - `Aᶠ : Tyᶠ Aᵇ` as `Aᶠ : { U | # ↪ Aᵇ } `
 
+(Strict) closed-modal types are those which are indexed over the unit type: `Tyᶠ
+𝟙ᵇ`.
+
 We do not have access to `#` directly, but we can postulate glue and extension
 types. These have a rather neat formulation:
 ```
@@ -45,8 +48,9 @@ up to term isomorphism. This means that Glue takes a base-indexed family
 of closed-modal types and produces a 'total' type, while Ext takes a total type
 and a base point and produces a closed-modal type.
 
-We can also add the closed modality (● : Tyᶠ Aᵇ → Tyᶠ 𝟙ᵇ) open modality
-(○ : (Aᵇ : Tyᵇ) → Tyᶠ Aᵇ) with appropriate intro/elim rules. See `LF.agda`.
+We can also add the closed modality (`● : Tyᶠ Aᵇ → Tyᶠ 𝟙ᵇ`) and open immersion
+(`○ : (Aᵇ : Tyᵇ) → Tyᶠ Aᵇ`) with appropriate intro/elim rules. The open modality
+is just projection of the index `Aᵇ`. See `LF.agda`.
 
 This is all we need to define STC models. See `STLC.agda` for an example of
 canonicity for the simply-typed lambda calculus.
@@ -59,7 +63,7 @@ There are still some disadvantages:
   Alternatively we can work fully within the fibers if we stick to the postulated type
   formers, and the base will be 'computed' by Agda in the index.
 - The setup is quite rigid to a single syntactic open. If we want more general
-  setups with `n` syntactic opens (for example n=2 for parametricity) we need a
+  setups with `n` syntactic opens (for example `n=2` for parametricity) we need a
   new logical framework that has `n` base universes, and the fibers indexed over
   all of them.
 

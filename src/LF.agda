@@ -173,7 +173,7 @@ postulate
 _>>=_ : Tmᶠ (● Aᶠ) ttᵇ → (∀ {aᵇ} (aᶠ : Tmᶠ Aᶠ aᵇ) → Tmᶠ Bᶠ ttᵇ) → Tmᶠ Bᶠ ttᵇ
 _>>=_ {Bᶠ = Bᶠ} x f = elim-● (λ _ → Bᶠ) f x
 
--- Open modality
+-- Open immersion
 postulate
   ○ : (Aᵇ : Tyᵇ) → Tyᶠ Aᵇ
   η○ : ∀ aᵇ → Tmᶠ (○ Aᵇ) aᵇ
