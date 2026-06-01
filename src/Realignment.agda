@@ -1,4 +1,3 @@
-{-# OPTIONS --prop --rewriting #-}
 module Realignment where
 
 open import Agda.Primitive
@@ -30,9 +29,10 @@ private variable
   a : A
 
 -- The realigned set.
-Realign : (ϕ : Prop ℓ') (A : Set ℓ) → (ϕ → Isomorph A) → Set ℓ
-Realign _ A B = [ realign A B .proj₁ ]
 opaque
+  Realign : (ϕ : Prop ℓ') (A : Set ℓ) → (ϕ → Isomorph A) → Set ℓ
+  Realign _ A B = [ realign A B .proj₁ ]
+
   ⌞_⌟ : A → Realign ϕ A B
   ⌞_⌟ a = realign _ _ .proj₁ .iso .to a
 
@@ -44,13 +44,14 @@ opaque
 
   ⌞⌜⌝ : ⌞ ⌜ a ⌝ ⌟ ≡ a
   ⌞⌜⌝ = realign _ _ .proj₁ .iso .to-from _
+
+  ϕ→Iso : (p : ϕ) → realign A B .proj₁ ≡ B p
+  ϕ→Iso {B = B} p = realign _ B .proj₂ p .witness
+
+  ϕ→Realign : (p : ϕ) → Realign ϕ A B ≡ [ B p ]
+  ϕ→Realign p = cong [_] (ϕ→Iso p)
+
 {-# REWRITE ⌜⌞⌟ ⌞⌜⌝ #-}
-
-ϕ→Iso : (p : ϕ) → realign A B .proj₁ ≡ B p
-ϕ→Iso {B = B} p = realign _ B .proj₂ p .witness
-
-ϕ→Realign : (p : ϕ) → Realign ϕ A B ≡ [ B p ]
-ϕ→Realign p = cong [_] (ϕ→Iso p)
 
 opaque
   unfolding ⌞_⌟ ⌜_⌝ coe

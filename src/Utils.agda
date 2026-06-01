@@ -52,6 +52,14 @@ record _≃_ (A : Set ℓ) (B : Set ℓ) : Set ℓ where
 
 open _≃_ public
 
+id≃ : ∀ {A : Set ℓ} → A ≃ A
+id≃ = record {
+    to = λ x → x ;
+    from = λ x → x ;
+    to-from = λ _ → refl ;
+    from-to = λ _ → refl
+  }
+
 record _true (A : Prop ℓ) : Set ℓ where
   constructor by
   field
@@ -72,6 +80,7 @@ open ΣProp public
 postulate
   coe₀ : A ≡ A' → A → A'
   funext : ∀ {f g : (x : A) → B x} → (∀ x → f x ≡ g x) → f ≡ g
+  ifunext : ∀ {f g : {x : A} → B x} → (∀ x → f {x} ≡ g {x}) → (λ {x} → f {x}) ≡ (λ {x} → g {x})
   propfunext : ∀ {f g : (x : P) → C x} → (∀ x → f x ≡ g x) → f ≡ g
 
 opaque
