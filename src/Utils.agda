@@ -60,12 +60,12 @@ id≃ = record {
     from-to = λ _ → refl
   }
 
-record _true (A : Prop ℓ) : Set ℓ where
+record _holds (A : Prop ℓ) : Set ℓ where
   constructor by
   field
     witness : A
 
-open _true public
+open _holds public
 
 record ΣProp {ℓ ℓ'} (A : Prop ℓ) (B : A → Prop ℓ') : Prop (ℓ ⊔ ℓ') where
   constructor _,P_
