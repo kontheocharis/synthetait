@@ -294,10 +294,38 @@ the type formers of the meta level which might be more convenient (and is, in
 the case of Agda, because we can use records). Overall this latter formulation
 is what we do in Agda.
 
+### Example: canonicity for STLC
 
+See [here](./src/Examples/STLC.agda).
 
-### Models 
- 
+I will be adding more examples to this soon.
+
+### Justifying `disp(TT)` in a Grothendieck topos with realignment
+
+You might wonder, how do we know that working in `disp(TT)` is actually the same
+as vanilla STC? Luckily you don't need to take my word for it. Instead of
+working with a postulated `disp(TT)` signature, in this repo we actually work
+with an _opaque model_ of `disp(TT)` which is implemented in terms of an actual
+abstract proposition `ϕ` which supports realignment. In short, we assume the
+following axioms:
+
+1. Realignment axiom for any proposition (this is quite strong, but we only use
+  it to align along the abstract proposition `ϕ`).
+
+2. That the pushout/join QIT for the closed modality exists.
+
+3. A definitionally proof-irrelevant equality with coercion, using Agda's
+  `--prop`, which makes dealing with transports easier. It is only there for
+  convenience and absolutely not necessary.
+  
+We also make _heavy_ use of rewriting rules in order to make all the equations
+of the opaque `disp(TT)` model definitional (other than η for unit 😞). This
+*is* necessary.
+
+So if you build a logical relations model in `disp(TT)`, you can always check
+what it will actually compute to in vanilla STC by going under an `opaque
+unfolding ...` block, where `...` should be replaced with whatever you want to
+unfold from the definitions in [Gluing](./src/Gluing/).
 
 ## Other useful references
 
