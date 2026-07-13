@@ -67,14 +67,14 @@ two lex modalities `○` and `●`, defined as `ϕ → -` (exponentiation) and `
 sense that the projection to the base is given by introducing a witness of `ϕ`
 into scope, and the fibers of this projection are the 'displayed' data.
 
-The issue is that the collapse into the base under a witness of `ϕ` does not
-happen definitionally when we are under `ϕ`; it only happens propositionally.
-This reintroduces enough transport noise in an intensional setting that it
-becomes almost as difficult as the vanilla first-order gluing approach. On the
-other hand, on paper we work in extensional type theory, so we have various
-definitional equations that automatically hold if there is a `ϕ` somewhere in
-scope. In intensional type theory this is not possible, and we cannot even hack
-Agda with rewriting rules to achieve this.
+If we try to formulate STC in intensional type theory, the collapse into the
+base under a witness of `ϕ` only holds propositionally, not definitionally. This
+reintroduces enough transport noise that it becomes almost as difficult as the
+vanilla first-order gluing approach. On the other hand, on paper we work in
+extensional type theory, so we have various definitional equations that
+automatically hold if there is a `ϕ` somewhere in scope. In intensional type
+theory this is not possible, and we cannot even hack Agda with rewriting rules
+to achieve this.
 
 One way around this is is to work in Cubical Agda and postulate a cofibration
 `ϕ` in cubical mode (e.g. https://github.com/jonsterling/agda-stc). Then we take
@@ -266,7 +266,7 @@ component is indexed by a base model.
 Consider the SOGAT of the untyped lambda calculus:
 
 ```hs
-LC := (Tm : 𝒰, (lam, app) : (Tm → Tm) ≅ Tm)
+LC := (Tm : 𝒰, (lam, app, β, η) : (Tm → Tm) ≅ Tm)
 ```
 
 We now work internally to `disp(TT)`.
