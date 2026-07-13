@@ -3,7 +3,6 @@ module Examples.STLC where
 open import Agda.Primitive
 open import Utils
 open import Data.Product
-open import Data.Unit using () renaming (⊤ to 𝟙; tt to tt𝟙)
 import Gluing.Unary as Unary
 
 -- Here we construct a canonicity model for STLC.
@@ -16,7 +15,7 @@ import Gluing.Unary as Unary
 -- The base of the type theory is modelled by the Psh C, and the fibers are
 -- modelled by the projection Gl(T*) → Psh C. As a result, the base is
 -- open-modal (weakening by # is an iso) and the fibers are closed modal
--- (contractible under #). A total type (Aᵇ : Setᵇ tt𝟙 ℓ , Aᶠ : Setᶠ Aᵇ) is
+-- (contractible under #). A total type (Aᵇ : Setᵇ ℓ , Aᶠ : Setᶠ Aᵇ) is
 -- essentially a fractured type in Gl(T*).
 
 module In (ϕ : Prop) where
@@ -29,8 +28,8 @@ module In (ϕ : Prop) where
 
   record STLCˢ : Set (lsuc (lsuc ℓ)) where
     field
-      ty : Setᵇ tt𝟙 (lsuc ℓ)
-      tm : Elᵇ ty → Setᵇ tt𝟙 ℓ
+      ty : Setᵇ (lsuc ℓ)
+      tm : Elᵇ ty → Setᵇ ℓ
 
   module in-STLCˢ {ℓ} (s : STLCˢ {ℓ}) where
     open STLCˢ s
@@ -65,7 +64,7 @@ module In (ϕ : Prop) where
     open STLC s
 
     -- We would ideally have
-    -- STLC : Setᵇ tt𝟙 ℓ
+    -- STLC : Setᵇ ℓ
     -- STLCᴰ : Setᶠ STLC
     -- to ensure that the fibers are properly aligned over the base.
     -- However, this would prevent us from using Agda records.

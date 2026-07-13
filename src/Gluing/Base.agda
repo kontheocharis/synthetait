@@ -8,17 +8,16 @@ open import Data.Bool using (Bool)
 open import Level using (Lift; lift)
 open import Gluing.Realignment
 
-module In (S : Set) (Φ : S → Prop) where
+module In (ϕ : Prop) where
   private variable
-    s : S
     ℓ ℓ' : Level
 
   private
-    Setᵇ-iso : Φ s → Isomorph (Φ s → Set ℓ)
-    Setᵇ-iso {ℓ = ℓ} ϕ = record
+    Setᵇ-iso : ϕ → Isomorph (ϕ → Set ℓ)
+    Setᵇ-iso {ℓ = ℓ} p = record
       { [_] = Set ℓ
       ; iso = record
-          { to = λ f → f ϕ
+          { to = λ f → f p
           ; from = λ X _ → X
           ; to-from = λ _ → refl
           ; from-to = λ _ → refl
@@ -26,57 +25,57 @@ module In (S : Set) (Φ : S → Prop) where
       }
 
   -- Base universe
-  -- This is the realigned version of Φ s → Set
+  -- This is the realigned version of ϕ → Set
 
   opaque
-    Setᵇ : S → (ℓ : Level) → Set (lsuc ℓ)
-    Setᵇ s ℓ = Realign (Φ s) (Φ s → Set ℓ) Setᵇ-iso
+    Setᵇ : (ℓ : Level) → Set (lsuc ℓ)
+    Setᵇ ℓ = Realign ϕ (ϕ → Set ℓ) Setᵇ-iso
 
-    Elᵇ-iso : (Aᵇ : Realign (Φ s) (Φ s → Set ℓ) Setᵇ-iso)
-            → Φ s → Isomorph ((ϕ : Φ s) → ⌜ Aᵇ ⌝ᴿ ϕ)
-    Elᵇ-iso Aᵇ ϕ = record
-      { [_] = ⌜ Aᵇ ⌝ᴿ ϕ
+    Elᵇ-iso : (Aᵇ : Realign ϕ (ϕ → Set ℓ) Setᵇ-iso)
+      → ϕ → Isomorph ((p : ϕ) → ⌜ Aᵇ ⌝ᴿ p)
+    Elᵇ-iso Aᵇ p = record
+      { [_] = ⌜ Aᵇ ⌝ᴿ p
       ; iso = record
-          { to = λ f → f ϕ
+          { to = λ f → f p
           ; from = λ x _ → x
           ; to-from = λ _ → refl
           ; from-to = λ _ → refl
           }
       }
 
-    Elᵇ : Setᵇ s ℓ → Set ℓ
-    Elᵇ {s = s} Aᵇ = Realign (Φ s) ((ϕ : Φ s) → ⌜ Aᵇ ⌝ᴿ ϕ) (Elᵇ-iso Aᵇ)
+    Elᵇ : Setᵇ ℓ → Set ℓ
+    Elᵇ Aᵇ = Realign ϕ ((p : ϕ) → ⌜ Aᵇ ⌝ᴿ p) (Elᵇ-iso Aᵇ)
 
   private variable
-    Aᵇ Bᵇ Cᵇ : Setᵇ s ℓ
-    Fᵇ Gᵇ : Elᵇ Aᵇ → Setᵇ s ℓ
+    Aᵇ Bᵇ Cᵇ : Setᵇ ℓ
+    Fᵇ Gᵇ : Elᵇ Aᵇ → Setᵇ ℓ
     aᵇ bᵇ cᵇ : Elᵇ Aᵇ
     fᵇ gᵇ : (x : Elᵇ Aᵇ) → Elᵇ (Fᵇ x)
     A : Set ℓ
-    A' B' : Φ s → Set ℓ
-    f g : (p : Φ s) → A' p
+    A' B' : ϕ → Set ℓ
+    f g : (p : ϕ) → A' p
 
 
   -- Wrap/unwrap
   opaque
     unfolding Setᵇ Elᵇ
 
-    ⌞_⌟ᵇ : (Φ s → Set ℓ) → Setᵇ s ℓ
+    ⌞_⌟ᵇ : (ϕ → Set ℓ) → Setᵇ ℓ
     ⌞ A ⌟ᵇ = ⌞ A ⌟ᴿ
 
-    ⌜_⌝ᵇ : Setᵇ s ℓ → (Φ s → Set ℓ)
+    ⌜_⌝ᵇ : Setᵇ ℓ → (ϕ → Set ℓ)
     ⌜ Aᵇ ⌝ᵇ = ⌜ Aᵇ ⌝ᴿ
 
-    ⌜⌞⌟⌝ᵇ' : ∀ {A' : Φ s → Set ℓ} → ⌜ ⌞ A' ⌟ᵇ ⌝ᵇ ≡ A'
+    ⌜⌞⌟⌝ᵇ' : ∀ {A' : ϕ → Set ℓ} → ⌜ ⌞ A' ⌟ᵇ ⌝ᵇ ≡ A'
     ⌜⌞⌟⌝ᵇ' = refl
 
-    ⌞⌜⌝⌟ᵇ' : ∀ {Aᵇ : Setᵇ s ℓ} → ⌞ ⌜ Aᵇ ⌝ᵇ ⌟ᵇ ≡ Aᵇ
+    ⌞⌜⌝⌟ᵇ' : ∀ {Aᵇ : Setᵇ ℓ} → ⌞ ⌜ Aᵇ ⌝ᵇ ⌟ᵇ ≡ Aᵇ
     ⌞⌜⌝⌟ᵇ' = refl
 
-    ⌞_⌟ : ((p : Φ s) → ⌜ Aᵇ ⌝ᵇ p) → Elᵇ Aᵇ
+    ⌞_⌟ : ((p : ϕ) → ⌜ Aᵇ ⌝ᵇ p) → Elᵇ Aᵇ
     ⌞ f ⌟ = ⌞ f ⌟ᴿ
 
-    ⌜_⌝ : Elᵇ Aᵇ → (p : Φ s) → ⌜ Aᵇ ⌝ᵇ p
+    ⌜_⌝ : Elᵇ Aᵇ → (p : ϕ) → ⌜ Aᵇ ⌝ᵇ p
     ⌜ a ⌝ = ⌜ a ⌝ᴿ
 
     ⌜⌞⌟⌝ᵇ : ⌜ ⌞ f ⌟ ⌝ ≡ f
@@ -101,22 +100,22 @@ module In (S : Set) (Φ : S → Prop) where
   opaque
     unfolding Setᵇ Elᵇ ⌜_⌝ᵇ
 
-    Uᵇ : ∀ ℓ → Setᵇ s (lsuc ℓ)
+    Uᵇ : ∀ ℓ → Setᵇ (lsuc ℓ)
     Uᵇ ℓ = ⌞ (λ _ → Set ℓ) ⌟ᵇ
 
-    russellᵇ : Setᵇ s ℓ ≡ Elᵇ {s = s} (Uᵇ ℓ)
+    russellᵇ : Setᵇ ℓ ≡ Elᵇ (Uᵇ ℓ)
     russellᵇ = refl
 
   {-# REWRITE russellᵇ #-}
 
   -- Type formers --
 
-  -- Φ modality of Elᵇ
+  -- ϕ modality of Elᵇ
   opaque
-    joinᵇ : (Φ s → Elᵇ {s = s} Aᵇ) → Elᵇ Aᵇ
-    joinᵇ {Aᵇ = Aᵇ} f = ⌞ (λ ϕ → ⌜_⌝ {Aᵇ = Aᵇ} (f ϕ) ϕ) ⌟
+    joinᵇ : (ϕ → Elᵇ Aᵇ) → Elᵇ Aᵇ
+    joinᵇ {Aᵇ = Aᵇ} f = ⌞ (λ p → ⌜_⌝ {Aᵇ = Aᵇ} (f p) p) ⌟
 
-    weakᵇ : Elᵇ {s = s} Aᵇ → (Φ s → Elᵇ Aᵇ)
+    weakᵇ : Elᵇ Aᵇ → (ϕ → Elᵇ Aᵇ)
     weakᵇ a _ = a
 
     join-weakᵇ : joinᵇ (λ _ → aᵇ) ≡ aᵇ
@@ -124,23 +123,23 @@ module In (S : Set) (Φ : S → Prop) where
 
     {-# REWRITE join-weakᵇ #-}
 
-    weak-joinᵇ : (g : Φ s → Elᵇ {s = s} Aᵇ) (ϕ : Φ s) → g ϕ ≡ joinᵇ g
-    weak-joinᵇ g ϕ = inj-⌜⌝ᵇ (propfunext (λ _ → refl))
+    weak-joinᵇ : (g : ϕ → Elᵇ Aᵇ) (p : ϕ) → g p ≡ joinᵇ g
+    weak-joinᵇ g p = inj-⌜⌝ᵇ (propfunext (λ _ → refl))
 
-  joinᵇ-natural : (h : Elᵇ {s = s} Aᵇ → Elᵇ Bᵇ) (g : Φ s → Elᵇ Aᵇ)
-                → joinᵇ (λ ϕ → h (g ϕ)) ≡ h (joinᵇ g)
-  joinᵇ-natural h g = cong joinᵇ (propfunext (λ ϕ → cong h (weak-joinᵇ g ϕ)))
+  joinᵇ-natural : (h : Elᵇ Aᵇ → Elᵇ Bᵇ) (g : ϕ → Elᵇ Aᵇ)
+    → joinᵇ (λ p → h (g p)) ≡ h (joinᵇ g)
+  joinᵇ-natural h g = cong joinᵇ (propfunext (λ p → cong h (weak-joinᵇ g p)))
 
   -- Pi
   opaque
-    Πᵇ : (Aᵇ : Setᵇ s ℓ) → (Elᵇ Aᵇ → Setᵇ s ℓ') → Setᵇ s (ℓ ⊔ ℓ')
-    Πᵇ Aᵇ Fᵇ = ⌞ (λ ϕ → (x : ⌜ Aᵇ ⌝ᵇ ϕ) → ⌜ Fᵇ ⌞ (λ _ → x) ⌟ ⌝ᵇ ϕ) ⌟ᵇ
+    Πᵇ : (Aᵇ : Setᵇ ℓ) → (Elᵇ Aᵇ → Setᵇ ℓ') → Setᵇ (ℓ ⊔ ℓ')
+    Πᵇ Aᵇ Fᵇ = ⌞ (λ p → (x : ⌜ Aᵇ ⌝ᵇ p) → ⌜ Fᵇ ⌞ (λ _ → x) ⌟ ⌝ᵇ p) ⌟ᵇ
 
     lamᵇ : ((x : Elᵇ Aᵇ) → Elᵇ (Fᵇ x)) → Elᵇ (Πᵇ Aᵇ Fᵇ)
-    lamᵇ f = ⌞ (λ ϕ x → ⌜ f ⌞ (λ _ → x) ⌟ ⌝ ϕ ) ⌟
+    lamᵇ f = ⌞ (λ p x → ⌜ f ⌞ (λ _ → x) ⌟ ⌝ p ) ⌟
 
     appᵇ : Elᵇ (Πᵇ Aᵇ Fᵇ) → (x : Elᵇ Aᵇ) → Elᵇ (Fᵇ x)
-    appᵇ f x = ⌞ (λ ϕ → ⌜ f ⌝ ϕ (⌜ x ⌝ ϕ)) ⌟
+    appᵇ f x = ⌞ (λ p → ⌜ f ⌝ p (⌜ x ⌝ p)) ⌟
 
     Πβᵇ : appᵇ (lamᵇ fᵇ) aᵇ ≡ fᵇ aᵇ
     Πβᵇ = refl
@@ -156,20 +155,20 @@ module In (S : Set) (Φ : S → Prop) where
 
   -- Sigma
   opaque
-    Σᵇ : (Aᵇ : Setᵇ s ℓ) → (Elᵇ Aᵇ → Setᵇ s ℓ') → Setᵇ s (ℓ ⊔ ℓ')
-    Σᵇ Aᵇ Fᵇ = ⌞ (λ ϕ → Σ[ x ∈ ⌜ Aᵇ ⌝ᵇ ϕ ] ⌜ Fᵇ ⌞ (λ _ → x) ⌟ ⌝ᵇ ϕ) ⌟ᵇ
+    Σᵇ : (Aᵇ : Setᵇ ℓ) → (Elᵇ Aᵇ → Setᵇ ℓ') → Setᵇ (ℓ ⊔ ℓ')
+    Σᵇ Aᵇ Fᵇ = ⌞ (λ p → Σ[ x ∈ ⌜ Aᵇ ⌝ᵇ p ] ⌜ Fᵇ ⌞ (λ _ → x) ⌟ ⌝ᵇ p) ⌟ᵇ
 
     pairᵇ : (a : Elᵇ Aᵇ) → Elᵇ (Fᵇ a) → Elᵇ (Σᵇ Aᵇ Fᵇ)
-    pairᵇ a b = ⌞ (λ ϕ → ⌜ a ⌝ ϕ , ⌜ b ⌝ ϕ ) ⌟
+    pairᵇ a b = ⌞ (λ p → ⌜ a ⌝ p , ⌜ b ⌝ p ) ⌟
 
     fstᵇ : Elᵇ (Σᵇ Aᵇ Fᵇ) → Elᵇ Aᵇ
-    fstᵇ p = ⌞ (λ ϕ → ⌜ p ⌝ ϕ .proj₁) ⌟
+    fstᵇ ab = ⌞ (λ p → ⌜ ab ⌝ p .proj₁) ⌟
 
     Σfstᵇ : fstᵇ (pairᵇ aᵇ bᵇ) ≡ aᵇ
     Σfstᵇ = refl
 
-    sndᵇ : (p : Elᵇ (Σᵇ Aᵇ Fᵇ)) → Elᵇ (Fᵇ (fstᵇ p))
-    sndᵇ p = ⌞ (λ ϕ → ⌜ p ⌝ ϕ .proj₂) ⌟
+    sndᵇ : (ab : Elᵇ (Σᵇ Aᵇ Fᵇ)) → Elᵇ (Fᵇ (fstᵇ ab))
+    sndᵇ ab = ⌞ (λ p → ⌜ ab ⌝ p .proj₂) ⌟
 
     {-# REWRITE Σfstᵇ #-}
 
@@ -188,10 +187,10 @@ module In (S : Set) (Φ : S → Prop) where
 
   -- Unit
   opaque
-    𝟙ᵇ : Setᵇ s ℓ
+    𝟙ᵇ : Setᵇ ℓ
     𝟙ᵇ {ℓ = ℓ} = ⌞ (λ _ → Lift ℓ 𝟙) ⌟ᵇ
 
-    ttᵇ : Elᵇ (𝟙ᵇ {s = s} {ℓ = ℓ})
+    ttᵇ : Elᵇ (𝟙ᵇ {ℓ = ℓ})
     ttᵇ = ⌞ (λ _ → lift tt𝟙) ⌟
 
     𝟙ᵇη : aᵇ ≡ ttᵇ
@@ -199,37 +198,37 @@ module In (S : Set) (Φ : S → Prop) where
 
   -- Equality
   opaque
-    _≡ᵇ_ : {A : Set ℓ} → A → A → Setᵇ s ℓ
+    _≡ᵇ_ : {A : Set ℓ} → A → A → Setᵇ ℓ
     a ≡ᵇ b = ⌞ (λ _ → (a ≡ b) holds) ⌟ᵇ
 
-    rflᵇ : Elᵇ {s} {ℓ} (aᵇ ≡ᵇ aᵇ)
+    rflᵇ : Elᵇ {ℓ} (aᵇ ≡ᵇ aᵇ)
     rflᵇ = ⌞ (λ _ → by refl) ⌟
 
-    reflectᵇ : Elᵇ {s} {ℓ} (aᵇ ≡ᵇ bᵇ) → Φ s → aᵇ ≡ bᵇ
-    reflectᵇ p ϕ = ⌜ p ⌝ ϕ .witness
+    reflectᵇ : Elᵇ {ℓ} (aᵇ ≡ᵇ bᵇ) → ϕ → aᵇ ≡ bᵇ
+    reflectᵇ e p = ⌜ e ⌝ p .witness
 
-    reflexᵇ : aᵇ ≡ bᵇ → Elᵇ {s} {ℓ} (aᵇ ≡ᵇ bᵇ)
+    reflexᵇ : aᵇ ≡ bᵇ → Elᵇ {ℓ} (aᵇ ≡ᵇ bᵇ)
     reflexᵇ p = ⌞ (λ _ → by p) ⌟
 
   -- Booleans
   opaque
-    𝟚ᵇ : Setᵇ s ℓ
+    𝟚ᵇ : Setᵇ ℓ
     𝟚ᵇ {ℓ = ℓ} = ⌞ (λ _ → Lift ℓ Bool) ⌟ᵇ
 
-    trueᵇ : Elᵇ (𝟚ᵇ {s = s} {ℓ = ℓ})
+    trueᵇ : Elᵇ (𝟚ᵇ {ℓ = ℓ})
     trueᵇ = ⌞ (λ _ → lift Bool.true) ⌟
 
-    falseᵇ : Elᵇ (𝟚ᵇ {s = s} {ℓ = ℓ})
+    falseᵇ : Elᵇ (𝟚ᵇ {ℓ = ℓ})
     falseᵇ = ⌞ (λ _ → lift Bool.false) ⌟
 
-    ifᵇ_ret_then_else_ : ∀ {s ℓ} (x : Elᵇ (𝟚ᵇ {s = s} {ℓ = ℓ}))
-        (P : Elᵇ 𝟚ᵇ → Setᵇ s ℓ')
-        → Elᵇ (P trueᵇ) → Elᵇ (P falseᵇ) → Elᵇ (P x)
-    ifᵇ_ret_then_else_ {s = s} x P a b = ⌞ (λ ϕ → go ϕ (⌜ x ⌝ ϕ .Lift.lower)) ⌟
+    ifᵇ_ret_then_else_ : ∀ {ℓ} (x : Elᵇ (𝟚ᵇ {ℓ = ℓ}))
+      (P : Elᵇ 𝟚ᵇ → Setᵇ ℓ')
+      → Elᵇ (P trueᵇ) → Elᵇ (P falseᵇ) → Elᵇ (P x)
+    ifᵇ_ret_then_else_ x P a b = ⌞ (λ p → go p (⌜ x ⌝ p .Lift.lower)) ⌟
       where
-        go : (ϕ : Φ s) → (y : Bool) → ⌜ P (⌞ (λ _ → lift y) ⌟) ⌝ᵇ ϕ
-        go ϕ Bool.true  = ⌜ a ⌝ ϕ
-        go ϕ Bool.false = ⌜ b ⌝ ϕ
+        go : (p : ϕ) → (y : Bool) → ⌜ P (⌞ (λ _ → lift y) ⌟) ⌝ᵇ p
+        go p Bool.true  = ⌜ a ⌝ p
+        go p Bool.false = ⌜ b ⌝ p
 
     ifᵇtrue : ifᵇ trueᵇ ret Fᵇ then aᵇ else bᵇ ≡ aᵇ
     ifᵇtrue = refl
@@ -239,5 +238,5 @@ module In (S : Set) (Φ : S → Prop) where
 
   {-# REWRITE ifᵇtrue ifᵇfalse #-}
 
-  ifᵇ_then_else : ∀ {Aᵇ} → Elᵇ (𝟚ᵇ {s = s} {ℓ = ℓ}) → Elᵇ {ℓ = ℓ'} Aᵇ → Elᵇ Aᵇ → Elᵇ Aᵇ
+  ifᵇ_then_else : ∀ {Aᵇ} → Elᵇ (𝟚ᵇ {ℓ = ℓ}) → Elᵇ {ℓ = ℓ'} Aᵇ → Elᵇ Aᵇ → Elᵇ Aᵇ
   ifᵇ_then_else {Aᵇ = Aᵇ} x a b = ifᵇ x ret (λ _ → Aᵇ) then a else b

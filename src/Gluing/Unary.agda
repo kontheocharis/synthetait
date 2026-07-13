@@ -10,13 +10,13 @@ open import Gluing.Realignment
 import Gluing.Base as Base
 
 module In (ϕ : Prop) where
-  open Base.In 𝟙 (λ _ → ϕ) public
+  open Base.In ϕ public
 
   private variable
     ℓ ℓ' : Level
     A B C : Set ℓ
-    Aᵇ Bᵇ Cᵇ : Setᵇ tt𝟙 ℓ
-    Fᵇ Gᵇ : Elᵇ Aᵇ → Setᵇ tt𝟙 ℓ
+    Aᵇ Bᵇ Cᵇ : Setᵇ ℓ
+    Fᵇ Gᵇ : Elᵇ Aᵇ → Setᵇ ℓ
     aᵇ bᵇ cᵇ : Elᵇ Aᵇ
     fᵇ gᵇ : (x : Elᵇ Aᵇ) → Elᵇ (Fᵇ x)
 
@@ -33,7 +33,7 @@ module In (ϕ : Prop) where
   ϕ→⋆-contr p .to-from _ = refl
   ϕ→⋆-contr p .from-to x = sym (collapse⋆ p x)
 
-  Setᶠ-𝟙-contr : ∀ {Aᵇ : Setᵇ tt𝟙 ℓ} → (p : ϕ) → (Elᵇ Aᵇ → Setᶠ-𝟙 ℓ) ≃ Lift (lsuc ℓ) 𝟙
+  Setᶠ-𝟙-contr : ∀ {Aᵇ : Setᵇ ℓ} → (p : ϕ) → (Elᵇ Aᵇ → Setᶠ-𝟙 ℓ) ≃ Lift (lsuc ℓ) 𝟙
   Setᶠ-𝟙-contr p .to _ = lift tt𝟙
   Setᶠ-𝟙-contr p .from _ aᵇ = Lift _ 𝟙 , (λ _ → by refl)
   Setᶠ-𝟙-contr p .to-from _ = refl
@@ -42,11 +42,11 @@ module In (ϕ : Prop) where
 
   -- This is Elᵇ Aᵇ → Setᶠ-𝟙 ℓ realigned over unit. This will allow us to have a Russell hierarchy.
   opaque
-    Setᶠ : Setᵇ tt𝟙 ℓ → Set (lsuc ℓ)
+    Setᶠ : Setᵇ ℓ → Set (lsuc ℓ)
     Setᶠ {ℓ = ℓ} Aᵇ =
       Realign ϕ (Elᵇ Aᵇ → Setᶠ-𝟙 ℓ) (λ p → record { [_] = Lift _ 𝟙 ; iso = Setᶠ-𝟙-contr p })
 
-    Elᶠ : {Aᵇ : Setᵇ tt𝟙 ℓ} → Setᶠ Aᵇ → Elᵇ Aᵇ → Set ℓ
+    Elᶠ : {Aᵇ : Setᵇ ℓ} → Setᶠ Aᵇ → Elᵇ Aᵇ → Set ℓ
     Elᶠ Aᶠ aᵇ = ⌜ Aᶠ ⌝ᴿ aᵇ .proj₁
 
   private variable
@@ -176,7 +176,7 @@ module In (ϕ : Prop) where
   syntax Ext Aᶠ aᵇ = [ Aᶠ ↪ aᵇ ]
   syntax Glue (λ a → F) = G[ a ∈ᶠ ] F
 
-  Glue′ : (Aᵇ : Setᵇ tt𝟙 ℓ) → (Elᵇ Aᵇ → Setᶠ {ℓ = ℓ} 𝟙ᵇ) → Setᶠ Aᵇ
+  Glue′ : (Aᵇ : Setᵇ ℓ) → (Elᵇ Aᵇ → Setᶠ {ℓ = ℓ} 𝟙ᵇ) → Setᶠ Aᵇ
   Glue′ _ F = Glue F
 
   syntax Glue′ Aᵇ (λ a → F) = G[ a ∈ Aᵇ ] F
@@ -322,7 +322,7 @@ module In (ϕ : Prop) where
 
   -- Open immersion
   opaque
-    ○ : (Aᵇ : Setᵇ tt𝟙 ℓ) → Setᶠ Aᵇ
+    ○ : (Aᵇ : Setᵇ ℓ) → Setᶠ Aᵇ
     ○ {ℓ = ℓ} Aᵇ = Glue (λ _ → ⌞ Lift ℓ 𝟙 , (λ _ → by refl) ⌟ᶠ)
 
     η○ : ∀ aᵇ → Elᶠ (○ Aᵇ) aᵇ
@@ -443,7 +443,7 @@ module In (ϕ : Prop) where
     Uᶠ : Setᶠ {ℓ = lsuc ℓ} (Uᵇ ℓ)
     Uᶠ {ℓ = ℓ} = ⌞ (λ Aᵇ → Setᶠ Aᵇ , (λ p → by (ϕ→Realign p))) ⌟ᴿ
 
-    russellᶠ : ∀ {Aᵇ : Setᵇ tt𝟙 ℓ} → Setᶠ Aᵇ ≡ Elᶠ Uᶠ Aᵇ
+    russellᶠ : ∀ {Aᵇ : Setᵇ ℓ} → Setᶠ Aᵇ ≡ Elᶠ Uᶠ Aᵇ
     russellᶠ = refl
 
   {-# REWRITE russellᶠ #-}
@@ -480,14 +480,14 @@ module In (ϕ : Prop) where
         M : (v : Lift ℓ Bool) → Σ[ z ∈ Elᵇ 𝟚ᵇ ] ((q : ϕ) → ⌜ z ⌝ q ≡ v) holds → Set ℓ'
         M v zp = Elᶠ (P (glue (wrap ⌞ η⋆ (v , zp .proj₂) ⌟ᴿ))) (ifᵇ zp .proj₁ ret Fᵇ then bᵇ else cᵇ)
 
-    ifᶠtrue : ∀ {ℓ ℓ'} {Fᵇ : Elᵇ (𝟚ᵇ {ℓ = ℓ}) → Setᵇ tt𝟙 ℓ'}
+    ifᶠtrue : ∀ {ℓ ℓ'} {Fᵇ : Elᵇ (𝟚ᵇ {ℓ = ℓ}) → Setᵇ ℓ'}
         {P : ∀ {aᵇ} → Elᶠ {ℓ = ℓ} 𝟚ᶠ aᵇ → Setᶠ {ℓ = ℓ'} (Fᵇ aᵇ)}
         {bᵇ : Elᵇ (Fᵇ trueᵇ)} {cᵇ : Elᵇ (Fᵇ falseᵇ)}
         {t : Elᶠ (P trueᶠ) bᵇ} {f : Elᶠ (P falseᶠ) cᵇ}
         → (ifᶠ trueᶠ ret P then t else f) ≡ t
     ifᶠtrue = refl
 
-    ifᶠfalse : ∀ {ℓ} {Fᵇ : Elᵇ (𝟚ᵇ {ℓ = ℓ}) → Setᵇ tt𝟙 ℓ'}
+    ifᶠfalse : ∀ {ℓ} {Fᵇ : Elᵇ (𝟚ᵇ {ℓ = ℓ}) → Setᵇ ℓ'}
         {P : ∀ {aᵇ} → Elᶠ {ℓ = ℓ} 𝟚ᶠ aᵇ → Setᶠ {ℓ = ℓ'} (Fᵇ aᵇ)}
         {bᵇ : Elᵇ (Fᵇ trueᵇ)} {cᵇ : Elᵇ (Fᵇ falseᵇ)}
         {t : Elᶠ (P trueᶠ) bᵇ} {f : Elᶠ (P falseᶠ) cᵇ}
