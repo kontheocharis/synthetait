@@ -40,10 +40,16 @@ module In (ϕ : Prop) where
   Setᶠ-𝟙-contr p .from-to Aᶠ =
     funext (λ aᵇ → Σ≡ (sym (Aᶠ aᵇ .proj₂ p .witness)) (propfunext (λ q → refl)))
 
-  seal : (A : Set ℓ) → (ϕ → A ≃ Lift ℓ 𝟙) → Setᶠ-𝟙 ℓ
-  seal A c =
+  SEAL : (A : Set ℓ) → (ϕ → A ≃ Lift ℓ 𝟙) → Setᶠ-𝟙 ℓ
+  SEAL A c =
     Realign ϕ A (λ p → record { [_] = Lift _ 𝟙 ; iso = c p })
     , (λ p → by (ϕ→Realign p))
+
+  SEAL⋆ : (A : Set ℓ) → Setᶠ-𝟙 ℓ
+  SEAL⋆ A = SEAL (ϕ ⋆ A) ϕ→⋆-contr
+
+  EXT : (A : Set ℓ) → (ϕ → A) → Set ℓ
+  EXT A f = Σ[ x ∈ A ] ((q : ϕ) → f q ≡ x) holds
 
   -- This is Elᵇ Aᵇ → Setᶠ-𝟙 ℓ realigned over unit. This will allow us to have a Russell hierarchy.
   opaque
@@ -205,8 +211,7 @@ module In (ϕ : Prop) where
   reindex : (Elᵇ {ℓ = ℓ} Aᵇ → Elᵇ {ℓ = ℓ} Bᵇ) → Setᶠ Bᵇ → Setᶠ Aᵇ
   reindex f Aᶠ = G[ t ∈ᶠ ] [ Aᶠ ↪ f t ]
 
-  -- -- Type formers --
-
+  -- Contractibility under ϕ for fibers
   private
     contr : (A ≡ Lift ℓ 𝟙) holds → (x y : A) → x ≡ y
     contr (by refl) x y = refl
@@ -214,21 +219,31 @@ module In (ϕ : Prop) where
     pt : (A ≡ Lift ℓ 𝟙) holds → A
     pt e = coe (sym (e .witness)) (lift tt𝟙)
 
+  ϕ-fiber-pt : ϕ → Elᶠ Aᶠ aᵇ
+  ϕ-fiber-pt {Aᶠ = Aᶠ} {aᵇ = aᵇ} p = into (pt (⌜ Ext Aᶠ aᵇ ⌝ᶠ .proj₂ p))
+
+  ϕ-fiber-prop : ϕ → (x y : Elᶠ Aᶠ aᵇ) → x ≡ y
+  ϕ-fiber-prop {Aᶠ = Aᶠ} {aᵇ = aᵇ} p x y =
+    cong into (contr (⌜ Ext Aᶠ aᵇ ⌝ᶠ .proj₂ p) (out x) (out y))
+
+  opaque
+    unfolding coe ap-Elᶠᵇ
+    ϕ-fiber-propᴰ : (p : ϕ) (e : aᵇ ≡ bᵇ) (x : Elᶠ Aᶠ aᵇ) (y : Elᶠ Aᶠ bᵇ) → x ≡[ ap-Elᶠᵇ e ] y
+    ϕ-fiber-propᴰ p refl x y = ϕ-fiber-prop p x y
+
+  -- -- Type formers --
+
   -- Pi
   opaque
     Πᶠ : (Aᶠ : Setᶠ Aᵇ) → (∀ {aᵇ} → Elᶠ Aᶠ aᵇ → Setᶠ (Fᵇ aᵇ)) → Setᶠ (Πᵇ Aᵇ Fᵇ)
     Πᶠ {Aᵇ = Aᵇ} {Fᵇ = Fᵇ} Aᶠ Fᶠ = Glue (λ f → ⌞
-        seal (∀ {aᵇ} (aᶠ : Elᶠ Aᶠ aᵇ) → Elᶠ (Fᶠ aᶠ) (appᵇ f aᵇ)) (λ p →
+        SEAL (∀ {aᵇ} (aᶠ : Elᶠ Aᶠ aᵇ) → Elᶠ (Fᶠ aᶠ) (appᵇ f aᵇ)) (λ p →
           record {
             to = λ _ → lift tt𝟙 ;
-            from = λ _ {aᵇ} aᶠ →
-              into (pt (⌜ Ext (Fᶠ aᶠ) (appᵇ f aᵇ) ⌝ᶠ .proj₂ p)) ;
+            from = λ _ {aᵇ} aᶠ → ϕ-fiber-pt p ;
             to-from = λ _ → refl ;
             from-to = λ g → ifunext λ aᵇ → funext λ aᶠ →
-              cong into
-                (contr (⌜ Ext (Fᶠ aᶠ) (appᵇ f aᵇ) ⌝ᶠ .proj₂ p)
-                  (pt (⌜ Ext (Fᶠ aᶠ) (appᵇ f aᵇ) ⌝ᶠ .proj₂ p))
-                  (out (g aᶠ)))
+              ϕ-fiber-prop p (ϕ-fiber-pt p) (g aᶠ)
           }) ⌟ᶠ)
 
     lamᶠ : (∀ {aᵇ} (aᶠ : Elᶠ Aᶠ aᵇ) → Elᶠ (Fᶠ aᶠ) (fᵇ aᵇ))
@@ -262,25 +277,17 @@ module In (ϕ : Prop) where
   opaque
     Σᶠ : (Aᶠ : Setᶠ Aᵇ) → (∀ {aᵇ} → Elᶠ Aᶠ aᵇ → Setᶠ (Fᵇ aᵇ)) → Setᶠ (Σᵇ Aᵇ Fᵇ)
     Σᶠ {Aᵇ = Aᵇ} {Fᵇ = Fᵇ} Aᶠ Fᶠ = Glue (λ p → ⌞
-        seal
+        SEAL
           (Σ[ aᶠ ∈ Elᶠ Aᶠ (fstᵇ p) ] Elᶠ (Fᶠ aᶠ) (sndᵇ p))
           (λ p' → record {
             to = λ _ → lift tt𝟙 ;
-            from = λ _ →
-              let aᶠ = into (pt (⌜ Ext Aᶠ (fstᵇ p) ⌝ᶠ .proj₂ p'))
-                  bᶠ = into (pt (⌜ Ext (Fᶠ aᶠ) (sndᵇ p) ⌝ᶠ .proj₂ p'))
-              in aᶠ , bᶠ ;
+            from = λ _ → ϕ-fiber-pt p' , ϕ-fiber-pt p' ;
             to-from = λ { (lift tt𝟙) → refl } ;
             from-to = λ q →
-              let aᶠ-x = into (pt (⌜ Ext Aᶠ (fstᵇ p) ⌝ᶠ .proj₂ p'))
-                  bᶠ-x = into (pt (⌜ Ext (Fᶠ aᶠ-x) (sndᵇ p) ⌝ᶠ .proj₂ p'))
-                  eq-a : aᶠ-x ≡ q .proj₁
-                  eq-a = cong into (contr (⌜ Ext Aᶠ (fstᵇ p) ⌝ᶠ .proj₂ p')
-                    (pt (⌜ Ext Aᶠ (fstᵇ p) ⌝ᶠ .proj₂ p'))
-                    (out (q .proj₁)))
-                  bᶠ' = subst (λ z → Elᶠ (Fᶠ z) (sndᵇ p)) eq-a bᶠ-x
-              in Σ≡ eq-a (cong into (contr (⌜ Ext (Fᶠ (q .proj₁)) (sndᵇ p) ⌝ᶠ .proj₂ p')
-                (out bᶠ') (out (q .proj₂))))
+              let eq-a : ϕ-fiber-pt p' ≡ q .proj₁
+                  eq-a = ϕ-fiber-prop p' (ϕ-fiber-pt p') (q .proj₁)
+                  bᶠ' = subst (λ z → Elᶠ (Fᶠ z) (sndᵇ p)) eq-a (ϕ-fiber-pt p')
+              in Σ≡ eq-a (ϕ-fiber-prop p' bᶠ' (q .proj₂))
           }) ⌟ᶠ)
 
     pairᶠ : (xᶠ : Elᶠ Aᶠ aᵇ) → Elᶠ (Fᶠ xᶠ) bᵇ → Elᶠ (Σᶠ Aᶠ Fᶠ) (pairᵇ aᵇ bᵇ)
@@ -334,8 +341,7 @@ module In (ϕ : Prop) where
     unfolding Πᶠ
 
     ● : Setᶠ {ℓ = ℓ} Aᵇ → Setᶠ (𝟙ᵇ {ℓ = ℓ})
-    ● {Aᵇ = Aᵇ} Aᶠ = Glue (λ _ → ⌞
-        seal (ϕ ⋆ (Σ[ aᵇ ∈ Elᵇ Aᵇ ] Elᶠ Aᶠ aᵇ)) ϕ→⋆-contr ⌟ᶠ)
+    ● {Aᵇ = Aᵇ} Aᶠ = Glue (λ _ → ⌞ SEAL⋆ (Σ[ aᵇ ∈ Elᵇ Aᵇ ] Elᶠ Aᶠ aᵇ) ⌟ᶠ)
 
     η● : Elᶠ Aᶠ aᵇ → Elᶠ (● Aᶠ) ttᵇ
     η● {aᵇ = aᵇ} aᶠ = glue (wrap ⌞ η⋆ (aᵇ , aᶠ) ⌟ᴿ)
@@ -391,8 +397,7 @@ module In (ϕ : Prop) where
   -- Total fracture: embedding of an Agda Set as a fiber over its base
   opaque
     ⌞_⌟ᶠᶜ : (X : Set ℓ) → Setᶠ ⌞ (λ _ → X) ⌟ᵇ
-    ⌞ X ⌟ᶠᶜ = Glue (λ aᵇ → ⌞
-        seal (ϕ ⋆ (Σ[ x ∈ X ] ((q : ϕ) → ⌜ aᵇ ⌝ q ≡ x) holds)) ϕ→⋆-contr ⌟ᶠ)
+    ⌞ X ⌟ᶠᶜ = Glue (λ aᵇ → ⌞ SEAL⋆ (EXT X ⌜ aᵇ ⌝) ⌟ᶠ)
 
     ⌞_⌟ᵉ : (a : A) → Elᶠ ⌞ A ⌟ᶠᶜ ⌞ (λ _ → a) ⌟
     ⌞ a ⌟ᵉ = glue (wrap ⌞ η⋆ (a , by (λ _ → refl)) ⌟ᴿ)
@@ -418,14 +423,8 @@ module In (ϕ : Prop) where
       Σ≡ (⌞⌟ᵇ-prop A-prop a b) (inj-Realign (⋆-prop Σ-prop
         ⌜ subst (Elᶠ ⌞ A ⌟ᶠᶜ) (⌞⌟ᵇ-prop A-prop a b) x ⌝ᴿ ⌜ y ⌝ᴿ))
       where
-        Σ-prop : (u v : Σ[ z ∈ A ] ((q : ϕ) → ⌜ b ⌝ q ≡ z) holds) → u ≡ v
+        Σ-prop : (u v : EXT A ⌜ b ⌝) → u ≡ v
         Σ-prop (z , by _) (z' , by _) = Σ≡ (A-prop z z') (true-prop _ _)
-
-  -- Under ϕ every fiber is contractible, hence a prop.
-  opaque
-    unfolding Setᶠ Elᶠ coe ap-Elᶠᵇ
-    ϕ-fiber-prop : (p : ϕ) (e : aᵇ ≡ bᵇ) (x : Elᶠ Aᶠ aᵇ) (y : Elᶠ Aᶠ bᵇ) → x ≡[ ap-Elᶠᵇ e ] y
-    ϕ-fiber-prop {Aᶠ = Aᶠ} p refl x y = contr (⌜ Aᶠ ⌝ᴿ _ .proj₂ p) x y
 
   -- Russell fiber universe
   opaque
