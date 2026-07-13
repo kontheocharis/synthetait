@@ -144,6 +144,12 @@ Glue : (Aᵇ : Setᵇ) → (Elᵇ Aᵇ → Setᶠ 𝟙) → Setᶠ Aᵇ
 (glue, unglue) : Elᶠ (Bᶠ aᵇ) ttᵇ ≅ Elᶠ (Glue Aᵇ Bᶠ) aᵇ
 ```
 
+Glue types allow us to artificially place any fiber data over any base data,
+which is the first main way we construct interesting things. In a logical
+relations model, most sorts and operations will be interpreted by gluing the
+corresponding base sort/constructor with whatever computability data we want to
+carry in the fibers.
+
 ### Extension types
 
 The `Ext` type former is in a sense the dual of `Glue`. It takes a fiber type
@@ -155,7 +161,12 @@ Ext : Setᶠ Aᵇ → Elᵇ Aᵇ → Setᶠ 𝟙
 (ext, unext) : Elᶠ Aᶠ aᵇ ≅ Elᶠ (Ext Aᵇ aᵇ) ttᵇ
 ```
 
-In what sense are they dual? `Ext` and `Glue` form an
+Extension types allow us to internalise the concept of a 'single fiber' and
+treat it as pure computability data (closed-modal). This is the second main way
+we construct interesting things; the data we carry in the fibers of a glued
+object will often be made of extension types.
+
+In what sense are they dual to glue types? `Ext` and `Glue` form an
 isomorphism-up-to-isomorphism between fiber types, and families of closed-modal
 types over base elements:
 
@@ -176,8 +187,9 @@ fiberwise unit type:
 (η○ , η○-uniq) : ∀ aᵇ . isContr (Elᶠ (○ Aᵇ) aᵇ)
 ```
 
-This gives a copy of the base theory inside the fiber theory, which is essential
-for logical relations.
+This gives a copy of the base theory inside the fiber theory, which we use in
+logical relations to specify conditions on the base model as part of some
+computability data.
 
 ### Closed modality
 
@@ -201,6 +213,11 @@ we produce something that is closed modal, i.e. indexed by `𝟙ᵇ`. From this 
 can see that `●` is a monad as usual. At least it is more pleasant to use than
 the usual QIT definition in STC, because we automatically get the 'contractible
 under `ϕ`' behaviour by the fact that it is indexed by `𝟙ᵇ`.
+
+This is also important for logical relations, because it allows us to take any
+'mixed' type and erase the base, treating it as pure computability data.
+(Do not confuse with extension types, which remember the base!) However, we could
+avoid many uses of this if we natively close `Setᶠ 𝟙ᵇ` under enough type formers.
 
 
 ## Other useful references
