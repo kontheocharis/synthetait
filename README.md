@@ -205,7 +205,7 @@ elim● : (P : Elᶠ (● Aᶠ) ttᵇ → Setᶠ 𝟙ᵇ)
   → (η●ᴹ : ∀ aᵇ . (aᶠ : Elᶠ Aᶠ aᵇ) → Elᶠ (Pᶠ (η● aᶠ)) ttᵇ)
   → ∀ aᶠ → Elᶠ (Pᶠ aᶠ) ttᵇ
   
-elim-●-η● : elim-● Pᶠ η●ᴹ (η● aᶠ) ≡ η●ᴹ aᶠ
+elim●-η● : elim● Pᶠ η●ᴹ (η● aᶠ) ≡ η●ᴹ aᶠ
 ```
 
 The elimination principle says that we can treat a `● Aᶠ` as an `Aᶠ` as long as
@@ -217,8 +217,31 @@ under `ϕ`' behaviour by the fact that it is indexed by `𝟙ᵇ`.
 This is also important for logical relations, because it allows us to take any
 'mixed' type and erase the base, treating it as pure computability data.
 (Do not confuse with extension types, which remember the base!) However, we could
-avoid many uses of this if we natively close `Setᶠ 𝟙ᵇ` under enough type formers.
+avoid many uses of this if we natively close `Setᶠ 𝟙ᵇ` under enough type
+formers (for now we don't do this).
 
+### Other type formers
+
+We have fiber versions of all the usual type formers (`𝟙ᶠ`, `Σᶠ`, `Πᶠ`) which
+are displayed over their base counterparts. For example `Πᶠ`:
+
+```hs
+Πᶠ : (Aᶠ : Setᶠ Aᵇ) → (∀ {aᵇ} → Elᶠ Aᶠ aᵇ → Setᶠ (Fᵇ aᵇ)) → Setᶠ (Πᵇ Aᵇ Fᵇ)
+lamᶠ : (∀ {aᵇ} (aᶠ : Elᶠ Aᶠ aᵇ) → Elᶠ (Fᶠ aᶠ) (fᵇ aᵇ)) → Elᶠ (Πᶠ Aᶠ Fᶠ) (lamᵇ fᵇ)
+appᶠ : Elᶠ (Πᶠ Aᶠ Fᶠ) aᵇ → ∀ {bᵇ} (bᶠ : Elᶠ Aᶠ bᵇ) → Elᶠ (Fᶠ bᶠ) (appᵇ aᵇ bᵇ)
+βᶠ : appᶠ (lamᶠ fᶠ) ≡ fᶠ
+ηᶠ : lamᶠ (appᶠ tᶠ) ≡ tᶠ
+```
+
+This looks more messy than the base version, because everything is displayed.
+Luckily, this only exists on the level of the SOGAT. When working in this type
+theory, we can use `Πᶠ` etc as we would usually, but the base will always
+computed implicitly alongside it.
+
+## An example: canonicity for STLC
+
+
+ 
 
 ## Other useful references
 

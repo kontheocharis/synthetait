@@ -190,6 +190,12 @@ module In (ϕ : Prop) where
   ⟨_⟩ : Elᶠ (Yᶠ aᵇ) (fᵇ aᵇ) → Elᶠ (G[ x ∈ᶠ ] [ Yᶠ x ↪ fᵇ x ]) aᵇ
   ⟨ p ⟩ = glue (ext p)
 
+  ap-⟨⟩ : (e : aᵇ ≡ bᵇ)
+    {w₁ : Elᶠ (Yᶠ aᵇ) (fᵇ aᵇ)} {w₂ : Elᶠ (Yᶠ bᵇ) (fᵇ bᵇ)}
+    → w₁ ≡[ cong (λ z → Elᶠ (Yᶠ z) (fᵇ z)) e ] w₂
+    → ⟨_⟩ {Yᶠ = Yᶠ} {fᵇ = fᵇ} w₁ ≡[ ap-Elᶠᵇ e ] ⟨ w₂ ⟩
+  ap-⟨⟩ refl q = dep (cong ⟨_⟩ (undep q))
+
   -- Generic reindexing
   reindex : (Elᵇ {ℓ = ℓ} Aᵇ → Elᵇ {ℓ = ℓ} Bᵇ) → Setᶠ Bᵇ → Setᶠ Aᵇ
   reindex f Aᶠ = G[ t ∈ᶠ ] [ Aᶠ ↪ f t ]
@@ -244,6 +250,13 @@ module In (ϕ : Prop) where
   syntax Πᶠ Aᶠ (λ a → Fᶠ) = [ a ∈ᶠ Aᶠ ] ⇒ Fᶠ
   syntax lamᶠ (λ a → tᶠ) = λᶠ a ⇒ tᶠ
   syntax appᶠ t u = t ∙ᶠ u
+
+  ap-lamᶠ : (e : fᵇ ≡ gᵇ)
+    {G₁ : ∀ {xᵇ} (xᶠ : Elᶠ Aᶠ xᵇ) → Elᶠ (Fᶠ xᶠ) (fᵇ xᵇ)}
+    (G₂ : ∀ {xᵇ} (xᶠ : Elᶠ Aᶠ xᵇ) → Elᶠ (Fᶠ xᶠ) (gᵇ xᵇ))
+    → (∀ {xᵇ} (xᶠ : Elᶠ Aᶠ xᵇ) → G₁ xᶠ ≡[ ap-Elᶠᵇ (ap-$ e xᵇ) ] G₂ xᶠ)
+    → lamᶠ {Fᶠ = Fᶠ} {fᵇ = fᵇ} G₁ ≡[ cong (λ f → Elᶠ (Πᶠ Aᶠ Fᶠ) (lamᵇ f)) e ] lamᶠ G₂
+  ap-lamᶠ refl G₂ q = dep (cong lamᶠ (ifunext (λ xᵇ → funext (λ xᶠ → undep (q xᶠ)))))
 
   -- Sigma
   opaque

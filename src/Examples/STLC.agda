@@ -1,4 +1,4 @@
-module STLC where
+module Examples.STLC where
 
 open import Agda.Primitive
 open import Utils
@@ -38,7 +38,7 @@ module In (ϕ : Prop) where
     variable
       α β : Elᵇ ty
       f g : Elᵇ (tm α) → Elᵇ (tm β)
-      t u : Elᵇ (tm α)
+      t u h : Elᵇ (tm α)
 
     record STLCᶜ : Set (lsuc ℓ) where
       field
@@ -46,6 +46,7 @@ module In (ϕ : Prop) where
         lam : (Elᵇ (tm α) → Elᵇ (tm β)) → Elᵇ (tm (α ⇒ β))
         app : Elᵇ (tm (α ⇒ β)) → Elᵇ (tm α) → Elᵇ (tm β)
         ⇒β : app (lam f) u ≡ f u
+        ⇒η : lam (λ x → app h x) ≡ h
 
         ans : Elᵇ ty
         yes : Elᵇ (tm ans)
@@ -80,7 +81,7 @@ module In (ϕ : Prop) where
       variable
         αᴰ βᴰ : Elᶠ tyᴰ α
         fᴰ gᴰ : ∀ {t} → Elᶠ (tmᴰ αᴰ) t → Elᶠ (tmᴰ βᴰ) (f t)
-        tᴰ uᴰ : Elᶠ (tmᴰ αᴰ) t
+        tᴰ uᴰ hᴰ : Elᶠ (tmᴰ αᴰ) t
 
       record STLCᴰᶜ : Set (lsuc ℓ) where
         field
@@ -88,6 +89,7 @@ module In (ϕ : Prop) where
           lamᴰ : (∀ {t} → Elᶠ (tmᴰ αᴰ) t → Elᶠ (tmᴰ βᴰ) (f t)) → Elᶠ (tmᴰ (αᴰ ⇒ᴰ βᴰ)) (lam f)
           appᴰ : Elᶠ (tmᴰ (αᴰ ⇒ᴰ βᴰ)) t → Elᶠ (tmᴰ αᴰ) u → Elᶠ (tmᴰ βᴰ) (app t u)
           ⇒βᴰ : appᴰ (lamᴰ fᴰ) uᴰ ≡[ ap-Elᶠᵇ ⇒β ] fᴰ uᴰ
+          ⇒ηᴰ : lamᴰ (λ xᴰ → appᴰ hᴰ xᴰ) ≡[ ap-Elᶠᵇ ⇒η ] hᴰ
 
           ansᴰ : Elᶠ tyᴰ ans
           yesᴰ : Elᶠ (tmᴰ ansᴰ) yes
@@ -123,6 +125,7 @@ module In (ϕ : Prop) where
     canon .ᴰᶜ .lamᴰ f = ⟨ λᶠ x ⇒ coe (ap-Elᶠᵇ (sym ⇒β)) (f x) ⟩
     canon .ᴰᶜ .appᴰ t u = ∣ t ∣ ∙ᶠ u
     canon .ᴰᶜ .⇒βᴰ = splitl reflᴰ
+    canon .ᴰᶜ .⇒ηᴰ {hᴰ = hᴰ} = ap-⟨⟩ ⇒η (ap-lamᶠ (funext (λ x → ⇒β)) (λ x → ∣ hᴰ ∣ ∙ᶠ x) (λ x → splitl reflᴰ))
     canon .ᴰᶜ .ansᴰ = ⟨ G[ a ∈ tm ans ] (● ([ b ∈ᶠ 𝟚ᶠ {ℓ} ] × ifᶠ b ret (λ _ → Uᶠ {ℓ}) then (○ (a ≡ᵇ yes)) else (○ (a ≡ᵇ no)))) ⟩
     canon .ᴰᶜ .yesᴰ = glue (η● (pairᶠ trueᶠ (η○ rflᵇ)))
     canon .ᴰᶜ .noᴰ = glue (η● (pairᶠ falseᶠ (η○ rflᵇ)))
