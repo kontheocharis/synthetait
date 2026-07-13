@@ -10,12 +10,12 @@ import Gluing.Unary as Unary
 -- The intended interpretation for canonicity is:
 -- Given T : 1 → C picking the terminal object ∙ of the STLC syntactic category,
 -- construct the glued presheaf topos Gl(T*) where T* : Psh C → Set. Its objects
--- are (Γᵇ : Psh C , Γᶠ : Γᵇ ∙ → Set). It has a proposition # = (⊤ , λ tt → ⊥).
+-- are (Γᵇ : Psh C , Γᶠ : Γᵇ ∙ → Set). It has a proposition ϕ = (⊤ , λ tt → ⊥).
 --
 -- The base of the type theory is modelled by the Psh C, and the fibers are
 -- modelled by the projection Gl(T*) → Psh C. As a result, the base is
--- open-modal (weakening by # is an iso) and the fibers are closed modal
--- (contractible under #). A total type (Aᵇ : Setᵇ ℓ , Aᶠ : Setᶠ Aᵇ) is
+-- open-modal (weakening by ϕ is an iso) and the fibers are closed modal
+-- (contractible under ϕ). A total type (Aᵇ : Setᵇ ℓ , Aᶠ : Setᶠ Aᵇ) is
 -- essentially a fractured type in Gl(T*).
 
 module In (ϕ : Prop) where
@@ -130,3 +130,4 @@ module In (ϕ : Prop) where
     canon .ᴰᶜ .noᴰ = glue (η● (pairᶠ falseᶠ (η○ rflᵇ)))
 
     -- By usual STC arguments, canon has a section
+    -- TODO: I should explain this more.
