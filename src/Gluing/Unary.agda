@@ -40,6 +40,11 @@ module In (ϕ : Prop) where
   Setᶠ-𝟙-contr p .from-to Aᶠ =
     funext (λ aᵇ → Σ≡ (sym (Aᶠ aᵇ .proj₂ p .witness)) (propfunext (λ q → refl)))
 
+  seal : (A : Set ℓ) → (ϕ → A ≃ Lift ℓ 𝟙) → Setᶠ-𝟙 ℓ
+  seal A c =
+    Realign ϕ A (λ p → record { [_] = Lift _ 𝟙 ; iso = c p })
+    , (λ p → by (ϕ→Realign p))
+
   -- This is Elᵇ Aᵇ → Setᶠ-𝟙 ℓ realigned over unit. This will allow us to have a Russell hierarchy.
   opaque
     Setᶠ : Setᵇ ℓ → Set (lsuc ℓ)
@@ -213,23 +218,18 @@ module In (ϕ : Prop) where
   opaque
     Πᶠ : (Aᶠ : Setᶠ Aᵇ) → (∀ {aᵇ} → Elᶠ Aᶠ aᵇ → Setᶠ (Fᵇ aᵇ)) → Setᶠ (Πᵇ Aᵇ Fᵇ)
     Πᶠ {Aᵇ = Aᵇ} {Fᵇ = Fᵇ} Aᶠ Fᶠ = Glue (λ f → ⌞
-        Realign ϕ (∀ {aᵇ} (aᶠ : Elᶠ Aᶠ aᵇ) → Elᶠ (Fᶠ aᶠ) (appᵇ f aᵇ)) (λ p →
-          record
-            { [_] = Lift _ 𝟙
-            ; iso = record
-                { to = λ _ → lift tt𝟙
-                ; from = λ _ {aᵇ} aᶠ →
-                    into (pt (⌜ Ext (Fᶠ aᶠ) (appᵇ f aᵇ) ⌝ᶠ .proj₂ p))
-                ; to-from = λ _ → refl
-                ; from-to = λ g → ifunext λ aᵇ → funext λ aᶠ →
-                    cong into
-                      (contr (⌜ Ext (Fᶠ aᶠ) (appᵇ f aᵇ) ⌝ᶠ .proj₂ p)
-                        (pt (⌜ Ext (Fᶠ aᶠ) (appᵇ f aᵇ) ⌝ᶠ .proj₂ p))
-                        (out (g aᶠ)))
-                }
-            }) ,
-        (λ p → by (ϕ→Realign p))
-      ⌟ᶠ)
+        seal (∀ {aᵇ} (aᶠ : Elᶠ Aᶠ aᵇ) → Elᶠ (Fᶠ aᶠ) (appᵇ f aᵇ)) (λ p →
+          record {
+            to = λ _ → lift tt𝟙 ;
+            from = λ _ {aᵇ} aᶠ →
+              into (pt (⌜ Ext (Fᶠ aᶠ) (appᵇ f aᵇ) ⌝ᶠ .proj₂ p)) ;
+            to-from = λ _ → refl ;
+            from-to = λ g → ifunext λ aᵇ → funext λ aᶠ →
+              cong into
+                (contr (⌜ Ext (Fᶠ aᶠ) (appᵇ f aᵇ) ⌝ᶠ .proj₂ p)
+                  (pt (⌜ Ext (Fᶠ aᶠ) (appᵇ f aᵇ) ⌝ᶠ .proj₂ p))
+                  (out (g aᶠ)))
+          }) ⌟ᶠ)
 
     lamᶠ : (∀ {aᵇ} (aᶠ : Elᶠ Aᶠ aᵇ) → Elᶠ (Fᶠ aᶠ) (fᵇ aᵇ))
          → Elᶠ (Πᶠ Aᶠ Fᶠ) (lamᵇ fᵇ)
@@ -262,31 +262,26 @@ module In (ϕ : Prop) where
   opaque
     Σᶠ : (Aᶠ : Setᶠ Aᵇ) → (∀ {aᵇ} → Elᶠ Aᶠ aᵇ → Setᶠ (Fᵇ aᵇ)) → Setᶠ (Σᵇ Aᵇ Fᵇ)
     Σᶠ {Aᵇ = Aᵇ} {Fᵇ = Fᵇ} Aᶠ Fᶠ = Glue (λ p → ⌞
-        Realign ϕ
+        seal
           (Σ[ aᶠ ∈ Elᶠ Aᶠ (fstᵇ p) ] Elᶠ (Fᶠ aᶠ) (sndᵇ p))
-          (λ p' → record
-            { [_] = Lift _ 𝟙
-            ; iso = record
-                { to = λ _ → lift tt𝟙
-                ; from = λ _ →
-                    let aᶠ = into (pt (⌜ Ext Aᶠ (fstᵇ p) ⌝ᶠ .proj₂ p'))
-                        bᶠ = into (pt (⌜ Ext (Fᶠ aᶠ) (sndᵇ p) ⌝ᶠ .proj₂ p'))
-                    in aᶠ , bᶠ
-                ; to-from = λ { (lift tt𝟙) → refl }
-                ; from-to = λ q →
-                    let aᶠ-x = into (pt (⌜ Ext Aᶠ (fstᵇ p) ⌝ᶠ .proj₂ p'))
-                        bᶠ-x = into (pt (⌜ Ext (Fᶠ aᶠ-x) (sndᵇ p) ⌝ᶠ .proj₂ p'))
-                        eq-a : aᶠ-x ≡ q .proj₁
-                        eq-a = cong into (contr (⌜ Ext Aᶠ (fstᵇ p) ⌝ᶠ .proj₂ p')
-                          (pt (⌜ Ext Aᶠ (fstᵇ p) ⌝ᶠ .proj₂ p'))
-                          (out (q .proj₁)))
-                        bᶠ' = subst (λ z → Elᶠ (Fᶠ z) (sndᵇ p)) eq-a bᶠ-x
-                    in Σ≡ eq-a (cong into (contr (⌜ Ext (Fᶠ (q .proj₁)) (sndᵇ p) ⌝ᶠ .proj₂ p')
-                      (out bᶠ') (out (q .proj₂))))
-                }
-            }) ,
-        (λ p' → by (ϕ→Realign p'))
-      ⌟ᶠ)
+          (λ p' → record {
+            to = λ _ → lift tt𝟙 ;
+            from = λ _ →
+              let aᶠ = into (pt (⌜ Ext Aᶠ (fstᵇ p) ⌝ᶠ .proj₂ p'))
+                  bᶠ = into (pt (⌜ Ext (Fᶠ aᶠ) (sndᵇ p) ⌝ᶠ .proj₂ p'))
+              in aᶠ , bᶠ ;
+            to-from = λ { (lift tt𝟙) → refl } ;
+            from-to = λ q →
+              let aᶠ-x = into (pt (⌜ Ext Aᶠ (fstᵇ p) ⌝ᶠ .proj₂ p'))
+                  bᶠ-x = into (pt (⌜ Ext (Fᶠ aᶠ-x) (sndᵇ p) ⌝ᶠ .proj₂ p'))
+                  eq-a : aᶠ-x ≡ q .proj₁
+                  eq-a = cong into (contr (⌜ Ext Aᶠ (fstᵇ p) ⌝ᶠ .proj₂ p')
+                    (pt (⌜ Ext Aᶠ (fstᵇ p) ⌝ᶠ .proj₂ p'))
+                    (out (q .proj₁)))
+                  bᶠ' = subst (λ z → Elᶠ (Fᶠ z) (sndᵇ p)) eq-a bᶠ-x
+              in Σ≡ eq-a (cong into (contr (⌜ Ext (Fᶠ (q .proj₁)) (sndᵇ p) ⌝ᶠ .proj₂ p')
+                (out bᶠ') (out (q .proj₂))))
+          }) ⌟ᶠ)
 
     pairᶠ : (xᶠ : Elᶠ Aᶠ aᵇ) → Elᶠ (Fᶠ xᶠ) bᵇ → Elᶠ (Σᶠ Aᶠ Fᶠ) (pairᵇ aᵇ bᵇ)
     pairᶠ aᶠ bᶠ = glue (wrap ⌞ aᶠ , bᶠ ⌟ᴿ)
@@ -340,9 +335,7 @@ module In (ϕ : Prop) where
 
     ● : Setᶠ {ℓ = ℓ} Aᵇ → Setᶠ (𝟙ᵇ {ℓ = ℓ})
     ● {Aᵇ = Aᵇ} Aᶠ = Glue (λ _ → ⌞
-        Realign ϕ (ϕ ⋆ (Σ[ aᵇ ∈ Elᵇ Aᵇ ] Elᶠ Aᶠ aᵇ))
-          (λ p → record { [_] = Lift _ 𝟙 ; iso = ϕ→⋆-contr p })
-        , (λ p → by (ϕ→Realign p)) ⌟ᶠ)
+        seal (ϕ ⋆ (Σ[ aᵇ ∈ Elᵇ Aᵇ ] Elᶠ Aᶠ aᵇ)) ϕ→⋆-contr ⌟ᶠ)
 
     η● : Elᶠ Aᶠ aᵇ → Elᶠ (● Aᶠ) ttᵇ
     η● {aᵇ = aᵇ} aᶠ = glue (wrap ⌞ η⋆ (aᵇ , aᶠ) ⌟ᴿ)
@@ -399,9 +392,7 @@ module In (ϕ : Prop) where
   opaque
     ⌞_⌟ᶠᶜ : (X : Set ℓ) → Setᶠ ⌞ (λ _ → X) ⌟ᵇ
     ⌞ X ⌟ᶠᶜ = Glue (λ aᵇ → ⌞
-        Realign ϕ (ϕ ⋆ (Σ[ x ∈ X ] ((q : ϕ) → ⌜ aᵇ ⌝ q ≡ x) holds))
-          (λ p → record { [_] = Lift _ 𝟙 ; iso = ϕ→⋆-contr p })
-        , (λ p → by (ϕ→Realign p)) ⌟ᶠ)
+        seal (ϕ ⋆ (Σ[ x ∈ X ] ((q : ϕ) → ⌜ aᵇ ⌝ q ≡ x) holds)) ϕ→⋆-contr ⌟ᶠ)
 
     ⌞_⌟ᵉ : (a : A) → Elᶠ ⌞ A ⌟ᶠᶜ ⌞ (λ _ → a) ⌟
     ⌞ a ⌟ᵉ = glue (wrap ⌞ η⋆ (a , by (λ _ → refl)) ⌟ᴿ)
