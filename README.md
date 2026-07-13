@@ -32,7 +32,7 @@ only in the end, to extract the theorems we care about.
 There are tradeoffs to using STC:
 
 - As is the case for most synthetic mathematics, we are no longer working in
-  'honest Set land', and must be okay with having some postulates and
+  'Set land', and must be okay with having some postulates and
   supplementing our formalisation with some external reasoning at the edges.
   
 - There is no good notion of morphism of second or higher-order models that we
@@ -44,8 +44,10 @@ There are tradeoffs to using STC:
 - It does not work for every logical relations setup. In particular, it
   only works when the glued category is (or can be made into) a Grothendieck topos.
   
-- It can involve some rather [powerful semantic results](https://arxiv.org/abs/2202.12012) for more exotic setups.
-  (Though, it is constructive for most common examples like canonicity/normalisation!)
+- It can involve some rather [powerful semantic
+  results](https://arxiv.org/abs/2202.12012) only valid in a classical
+  metatheory for more exotic setups. (Though, it can still be made constructive
+  for most common examples like canonicity/normalisation!)
 
 There is also the 
 [internal sconing](https://drops.dagstuhl.de/storage/00lipics/lipics-vol260-fscd2023/LIPIcs.FSCD.2023.18/LIPIcs.FSCD.2023.18.pdf)
@@ -65,13 +67,14 @@ two lex modalities `○` and `●`, defined as `ϕ → -` (exponentiation) and `
 sense that the projection to the base is given by introducing a witness of `ϕ`
 into scope, and the fibers of this projection are the 'displayed' data.
 
-The issue is that the computation of this base does not happen definitionally
-when we are under `ϕ`---it only happens propositionally. This reintroduces so
-much transport noise that it basically becomes just as difficult as the vanilla
-first-order gluing approach. The reason this works on paper is that we work in
-extensional type theory, so we have various definitional equations that hold if
-there is a `ϕ` somewhere in scope. In intensional type theory this is not
-possible, and we cannot even hack Agda with rewriting rules to achieve this.
+The issue is that the collapse into the base under a witness of `ϕ` does not
+happen definitionally when we are under `ϕ`; it only happens propositionally.
+This reintroduces enough transport noise in an intensional setting that it
+becomes almost as difficult as the vanilla first-order gluing approach. On the
+other hand, on paper we work in extensional type theory, so we have various
+definitional equations that automatically hold if there is a `ϕ` somewhere in
+scope. In intensional type theory this is not possible, and we cannot even hack
+Agda with rewriting rules to achieve this.
 
 One way around this is is to work in Cubical Agda and postulate a cofibration
 `ϕ` in cubical mode (e.g. https://github.com/jonsterling/agda-stc). Then we take
@@ -244,10 +247,10 @@ appᶠ : Elᶠ (Πᶠ Aᶠ Fᶠ) aᵇ → ∀ bᵇ . (bᶠ : Elᶠ Aᶠ bᵇ) �
 ```
 
 This looks more messy than the base version, because everything is displayed.
-Luckily, this only exists on the level of the SOGAT. When working inside
-`disp(TT)`, we can use `Πᶠ` etc as we would usually, and the base will always
-computed implicitly alongside it.
-
+Luckily, this indexing only appears on the level of the SOGAT. When working
+inside `disp(TT)`, we can use `Πᶠ` etc as we would usually, without additional
+manual quantification, and the base will always be computed implicitly alongside
+it.
 
 ### Encoding type theories
 
@@ -292,19 +295,21 @@ Modᴰ'(LC) M = (
     appᴰ : ∀ f a . Elᶠ Tmᴰ f → Elᶠ Tmᴰ a → Elᶠ Tmᴰ (app f a),
     βᴰ : appᴰ (lamᴰ f) ≡[ M.β ] f,
     ηᴰ : lamᴰ (appᴰ f) ≡[ M.η ] f,
-   )
+  )
 ```
 This is basically the same, though we don't get the direct guarantee that
-`Modᴰ'` is properly aligned over its base. On the other hand, we are able to use
-the type formers of the meta level which might be more convenient (and is, in
-the case of Agda, because we can use records). Overall this latter formulation
-is what we do in Agda.
+`Modᴰ'` is properly aligned over its base. In other words, we must manually
+ensure that `Modᴰ'(LC) M ≅ Elᶠ (Modᴰ(LC)) M`. On the other hand, we are able to
+use the type formers of the meta level which might be more convenient (and is,
+in the case of Agda, because we can use records). Overall this latter
+formulation is what we do in Agda.
 
 ### Example: canonicity for STLC
 
 See [here](./src/Examples/STLC.agda).
 
-I will be adding more examples to this soon.
+I will be adding more examples to this soon, hopefully including some
+normalisation ones.
 
 ### Justifying `disp(TT)` in a Grothendieck topos with realignment
 
