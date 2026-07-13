@@ -80,7 +80,7 @@ definitional collapsing behaviour. However, this is not sound for many reasons,
 one of which is that cofibrations do not behave as propositions in a glued topos
 should.
 
-## A structured approach to internal gluing
+## A structured approach to internal gluing: `disp(TT)`
 
 This library is based on the observation that each type in a glued topos is
 equivalent to a `○`-modal base and a `●`-modal family over it. In particular,
@@ -98,9 +98,11 @@ work inside a fractured universe from the beginning, so that the base and fibers
 are always structurally separated, rather than trying to prove this fracture
 theorem internally after the fact.
 
-As such, in this library, we work inside an _indexed type theory_. This is a
-type theory which has base types, fiber types, base terms and fiber terms. At
-each level (base, fiber) we have type formers. We specify this as a SOGAT.
+As such, in this library, we work inside an _indexed type theory_ that will act
+as our logical framework for doing STC. This is a type theory which has a base
+fragment and a fiber fragment, where the fiber fragment is indexed by the base.
+At each level (base, fiber) we have type formers. We specify this as a SOGAT
+called `disp(TT)`, meaning a version of type theory displayed over itself.
 
 The sorts are:
 
@@ -118,13 +120,17 @@ The base is just ordinary dependent type theory, nothing too interesting to see
 here:
 
 ```hs
--- Unit types
+-- Unit
 𝟙 : Setᵇ
 (ttᵇ, ttᵇ-uniq) : isContr (Elᵇ 𝟙)
 
 -- Pi
 Πᵇ : (Aᵇ : Setᵇ) → (Elᵇ Aᵇ → Setᵇ) → Setᵇ
 (lamᵇ, appᵇ) : ((x : Elᵇ Aᵇ) → Elᵇ (Bᵇ x)) ≅ Elᵇ (Πᵇ Aᵇ Bᵇ)
+
+-- Russell universe
+Uᵇ : Setᵇ
+rus : Elᵇ Uᵇ ≡ Setᵇ
 
 -- Sigma, etc..
 ```
@@ -220,27 +226,77 @@ This is also important for logical relations, because it allows us to take any
 avoid many uses of this if we natively close `Setᶠ 𝟙ᵇ` under enough type
 formers (for now we don't do this).
 
-### Other type formers
+### Other fiber type formers
 
-We have fiber versions of all the usual type formers (`𝟙ᶠ`, `Σᶠ`, `Πᶠ`) which
+We have fiber versions of all the usual type formers (`𝟙ᶠ`, `Σᶠ`, `Πᶠ`, `Uᶠ`) which
 are displayed over their base counterparts. For example `Πᶠ`:
 
 ```hs
 Πᶠ : (Aᶠ : Setᶠ Aᵇ) → (∀ {aᵇ} → Elᶠ Aᶠ aᵇ → Setᶠ (Fᵇ aᵇ)) → Setᶠ (Πᵇ Aᵇ Fᵇ)
-lamᶠ : (∀ {aᵇ} (aᶠ : Elᶠ Aᶠ aᵇ) → Elᶠ (Fᶠ aᶠ) (fᵇ aᵇ)) → Elᶠ (Πᶠ Aᶠ Fᶠ) (lamᵇ fᵇ)
-appᶠ : Elᶠ (Πᶠ Aᶠ Fᶠ) aᵇ → ∀ {bᵇ} (bᶠ : Elᶠ Aᶠ bᵇ) → Elᶠ (Fᶠ bᶠ) (appᵇ aᵇ bᵇ)
+lamᶠ : (∀ aᵇ . (aᶠ : Elᶠ Aᶠ aᵇ) → Elᶠ (Fᶠ aᶠ) (fᵇ aᵇ)) → Elᶠ (Πᶠ Aᶠ Fᶠ) (lamᵇ fᵇ)
+appᶠ : Elᶠ (Πᶠ Aᶠ Fᶠ) aᵇ → ∀ bᵇ . (bᶠ : Elᶠ Aᶠ bᵇ) → Elᶠ (Fᶠ bᶠ) (appᵇ aᵇ bᵇ)
 βᶠ : appᶠ (lamᶠ fᶠ) ≡ fᶠ
 ηᶠ : lamᶠ (appᶠ tᶠ) ≡ tᶠ
 ```
 
 This looks more messy than the base version, because everything is displayed.
-Luckily, this only exists on the level of the SOGAT. When working in this type
-theory, we can use `Πᶠ` etc as we would usually, but the base will always
+Luckily, this only exists on the level of the SOGAT. When working inside
+`disp(TT)`, we can use `Πᶠ` etc as we would usually, and the base will always
 computed implicitly alongside it.
 
-## An example: canonicity for STLC
+### Encoding type theories
+
+Now, given any SOGAT `T`, we can define what it means to have an internal model
+of `T`, and a displayed model over it, in `disp(TT)`. Instead of giving a formal
+definition, we do so via an example.
+
+The main idea is that a model `M : Mod(T)` is simply an interpretation of the
+signature of `T` in the base fragment, and a displayed model `Mᴰ : Modᴰ(T)`
+is an interpretation of the signature of `T` in the fiber fragment, where each
+component is indexed by a base model.
+
+Consider the SOGAT of the untyped lambda calculus:
+
+```hs
+LC := (Tm : 𝒰, (lam, app) : (Tm → Tm) ≅ Tm)
+```
+
+We now work internally to `disp(TT)`.
+The type of base models is:
+
+```hs
+Mod(LC) : Setᵇ
+Mod(LC) = (Tm : Uᵇ , (lam, app, β, η) : (Tm → Tm) ≅ Tm)
+```
+
+The type displayed models over `M : Mod(LC)` is:
+```hs
+Modᴰ(LC) : Setᶠ (Mod(LC))
+Modᴰ(LC) = (Tmᴰ : Uᶠ, (lamᴰ, appᴰ, βᴰ, ηᴰ) : (Tmᴰ → Tmᴰ) ≅ Tmᴰ)
+```
+
+If we don't want to work fully internally to `disp(TT)`, and use it as more of
+an object language, still making use of the fact that we have another ambient
+meta level, we could also write
+```hs
+Modᴰ'(LC) : Mod(LC) → MetaSet
+Modᴰ'(LC) M = (
+    Tmᴰ : Elᶠ Uᶠ M.Tm,
+    lamᴰ : (∀ a . Elᶠ Tmᴰ a → Elᶠ Tmᴰ (f a)) → Elᶠ Tmᴰ (lam f),
+    appᴰ : ∀ f a . Elᶠ Tmᴰ f → Elᶠ Tmᴰ a → Elᶠ Tmᴰ (app f a),
+    βᴰ : appᴰ (lamᴰ f) ≡[ M.β ] f,
+    ηᴰ : lamᴰ (appᴰ f) ≡[ M.η ] f,
+   )
+```
+This is basically the same, though we don't get the direct guarantee that
+`Modᴰ'` is properly aligned over its base. On the other hand, we are able to use
+the type formers of the meta level which might be more convenient (and is, in
+the case of Agda, because we can use records). Overall this latter formulation
+is what we do in Agda.
 
 
+
+### Models 
  
 
 ## Other useful references
@@ -255,79 +311,4 @@ diagrams of ∞-logoses" by Taichi Uemura](https://arxiv.org/pdf/2212.02444v1)
 Spitters](https://arxiv.org/pdf/1706.07526)
 
 - The de-facto reference on lex modalities
-
-
-
-
-<!-- 
-## Formalising STC
-
-The main difficulty with formalising synthetic Tait computability is how to
-represent the open proposition for which I will write `#`). Presentations of
-STC usually use extensional equality, thus omitting many steps of reasoning
-about how things collapse under `#`.
-
-There are two known approaches to formalising STC:
-
-- Postulating a proposition `#` directly, and postulate the realignment axiom. This basically leads to transport
-  hell, even with `--prop`. Rewriting rules don't help because we cannot rewrite
-  a term based on the existence of an element `p : #` in the ambient context,
-  which is not otherwise referenced in the term.
-- Postulating a cofibration `#` in cubical mode (e.g. https://github.com/jonsterling/agda-stc).
-  Then at least glue and extension types can be formulated using cubical primitives.
-  However it is pretty hacky and Agda's cofibrations do not really behave properly (they
-  emulate the internal language of a de Morgan topos, and none of the usual STC
-  examples fall under this AFAIK).
-  
-Ideally we would want an implementation of type theory with propositions (like
-in [Andreas Nuyts' PhD thesis](https://lirias.kuleuven.be/retrieve/581985), also
-suggested in https://github.com/agda/agda/issues/7703).
-
-However, it turns out that if we explicitly separate the `#-modal` part and the
-`#-contractible` part of each object, then it is pretty easy to get good
-definitional behaviour. Specifically, we work in an indexed type theory, which has:
-
-- base sorts `Tyᵇ : Set` , `Tmᵇ : Tyᵇ → Set`
-- indexed sorts `Tyᶠ : Tyᵇ → Set` , `Tmᶠ : ∀ {Aᵇ} → Tyᶠ Aᵇ → Tmᵇ Aᵇ → Set`
-
-The base universe is the universe of `#-modal` (open modal) types, and the
-indexed universe is the (`#-contractible` / closed modal) universe of types lying
-over a chosen base point.
-
-In other words, you can think of
-- `Aᵇ : Tyᵇ` as `Aᵇ : ○ U`
-- `Aᶠ : Tyᶠ Aᵇ` as `Aᶠ : { U | # ↪ Aᵇ } `
-
-(Strict) closed-modal types are those which are indexed over the unit type: `Tyᶠ
-𝟙ᵇ`.
-
-We do not have access to `#` directly, but we can postulate glue and extension
-types. These have a rather neat formulation:
-```
-Glue : (Tmᵇ Aᵇ → Tyᶠ 𝟙ᵇ) ≃ Tyᶠ Aᵇ : Ext
-```
-up to term isomorphism. This means that Glue takes a base-indexed family
-of closed-modal types and produces a 'total' type, while Ext takes a total type
-and a base point and produces a closed-modal type.
-
-We can also add the closed modality (`● : Tyᶠ Aᵇ → Tyᶠ 𝟙ᵇ`) and open immersion
-(`○ : (Aᵇ : Tyᵇ) → Tyᶠ Aᵇ`) with appropriate intro/elim rules. The open modality
-is just projection of the index `Aᵇ`. See `LF.agda`.
-
-This is all we need to define STC models. See `STLC.agda` for an example of
-canonicity for the simply-typed lambda calculus.
-
-There are still some disadvantages:
-- It is not so nice to work with custom universes in Agda as it is to work with
-  Set. In particular, we cannot use records or inductive types (though functions
-  work pretty well with `syntax` sugar). For example, if we want to use records,
-  we need to separately define a record for the base and one for the fibers.
-  Alternatively we can work fully within the fibers if we stick to the postulated type
-  formers, and the base will be 'computed' by Agda in the index.
-- The setup is quite rigid to a single syntactic open. If we want more general
-  setups with `n` syntactic opens (for example `n=2` for parametricity) we need a
-  new logical framework that has `n` base universes, and the fibers indexed over
-  all of them.
- -->
-
 
